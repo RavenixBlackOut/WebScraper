@@ -1,0 +1,113 @@
+using OpenQA.Selenium;
+using OpenQA.Selenium.Support.UI;
+using OpenQA.Selenium.Chrome;
+
+
+class Program
+{
+    static public void Main()
+    {
+        //Create WebDriver
+        IWebDriver _ = new ChromeDriver();
+        //Create Implicit Wait -- Customize wait time by editing 350.
+        _.Manage().Timeouts().ImplicitWait = TimeSpan.FromSeconds(350);
+        //URL WebDriver will goto
+        _.Navigate().GoToUrl("https://www.imdb.com/");     
+        //Finds Hamburger Menu
+        var element = _.FindElement(By.Id("imdbHeader-navDrawerOpen"));
+        element.Click();
+        Console.WriteLine("Looking for movie drop down");
+        //Finds Movie List in Nav Menu
+        var movieList = _.FindElement(By.ClassName("navlinkcat__itemIcon"));
+        //Writes to Console to confirm Element was Found. Can be removed as it was used for debugging
+        Console.WriteLine(movieList);
+        movieList.Click();
+        // XPath which I still don't understand but kudos for making it!
+        var topMovies = _.FindElement(By.XPath("//*[@id=\"imdbHeader\"]/div[2]/aside/div/div[2]/div/div[1]/span/div/div/ul/a[4]"));
+        topMovies.Click();
+        //Asks in Console which Order to file Movies.
+        Console.WriteLine("Choose 1 to Sort by Ranking\nChoose 2 to Sort by Rating\nChoose 3 to Sort By Release Date:");
+        var askInput = Console.ReadLine();
+        int fixedInput = Convert.ToInt32(askInput);
+        //Deletes contents of IMDBList.txt if it already exists -- A more harsh way of overwrite imo
+        if (File.Exists("IMDBList.txt"))
+        {
+            File.WriteAllText("IMDBList.txt", String.Empty);
+        }
+        if (fixedInput == 1)
+        {
+            Console.WriteLine("Sorting by Rank!");
+            var sortByRank = _.FindElement(By.Name("sort"));
+            sortByRank.Click();
+            IWebElement selectElement = _.FindElement(By.Id("lister-sort-by-options"));
+            var selectObject = new SelectElement(selectElement);
+            selectObject.SelectByValue("rk:ascending");
+            var titles = _.FindElements(By.ClassName("titleColumn"));
+            Console.WriteLine("TOP 100 MOVIES SORTED BY IMDB RANKING");
+            string ss = "Top 100 Movies Sorted By IMDB Ranking\n";
+            File.AppendAllText("IMDBList.txt", ss);
+            foreach (var title in titles) // For each loop scraping all Titles 
+            { 
+                //Console Write to see String value of Title in foreach loop
+                Console.WriteLine(title.Text);
+                //Creates string that holds movie names
+                string s1 = title.Text;
+                //Adds s1 string to IMDB.txt
+                File.AppendAllText("IMDBList.txt", s1);
+            }
+            
+            _.Quit();
+
+        }
+        if (fixedInput == 2)
+        {
+            Console.WriteLine("Sorting by Rating!");
+            var sortByRank = _.FindElement(By.Name("sort"));
+            sortByRank.Click();
+            IWebElement selectElement = _.FindElement(By.Id("lister-sort-by-options"));
+            var selectObject = new SelectElement(selectElement);
+            selectObject.SelectByValue("ir:descending");
+            var titles = _.FindElements(By.ClassName("titleColumn"));
+            Console.WriteLine("TOP 100 MOVIES SORTED BY IMDB Rating");
+            string ss = "Top 100 Movies Sorted By IMDB Rating\n";
+            File.AppendAllText("IMDBList.txt", ss);
+            foreach (var title in titles) // For each loop scraping all Titles 
+            {
+                Console.WriteLine(title.Text);
+                string s1 = title.Text;
+                File.AppendAllText("IMDBList.txt", s1);
+            }
+         
+            _.Quit();
+        }
+        if (fixedInput == 3)
+        {
+            Console.WriteLine("Sorting by Release Date!");
+            var sortByRank = _.FindElement(By.Name("sort"));
+            sortByRank.Click();
+            IWebElement selectElement = _.FindElement(By.Id("lister-sort-by-options"));
+            var selectObject = new SelectElement(selectElement);
+            selectObject.SelectByValue("us:descending");
+            var titles = _.FindElements(By.ClassName("titleColumn"));
+            Console.WriteLine("TOP 100 MOVIES SORTED BY RELEASE DATE");
+            string ss = "Top 100 Movies Sorted By Release Date\n";
+            File.AppendAllText("IMDBList.txt", ss);
+            foreach (var title in titles) // For each loop scraping all Titles 
+            {
+                Console.WriteLine(title.Text);
+                string s1 = title.Text;
+                File.AppendAllText("IMDBList.txt", s1);
+            }
+            
+            _.Quit();
+        }
+        else
+        { 
+            //Catches inputs besides 1,2,or 3 and spits out text telling user to retry program
+            Console.WriteLine("Bad Selection. Try Again...");
+            Task.Delay(10000);
+            _.Quit();
+        }
+        
+    }
+}
